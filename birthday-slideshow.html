@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday, My Love</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #c4746e;
+    --blush: #e8b4a0;
+    --cream: #fdf6f0;
+    --deep: #2b1f1a;
+    --muted: #8a6e68;
+    --gold: #c9a96e;
+    --sage: #8aab8e;
+    --sage-dim: rgba(138,171,142,0.18);
+    --sage-line: rgba(138,171,142,0.35);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--deep);
+    font-family: 'Jost', sans-serif;
+    overflow: hidden;
+    color: var(--cream);
+  }
+
+  /* ── Grain overlay ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.6;
+  }
+
+  /* ── Intro screen ── */
+  #intro {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--deep);
+    z-index: 100;
+    transition: opacity 1.2s ease, visibility 1.2s ease;
+    text-align: center; padding: 2rem;
+  }
+  #intro.hidden { opacity: 0; visibility: hidden; }
+
+  .intro-subtitle {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    letter-spacing: 0.35em;
+    font-size: clamp(0.65rem, 2vw, 0.8rem);
+    color: var(--blush);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp 1s 0.3s forwards;
+  }
+  .intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.8rem, 9vw, 6rem);
+    line-height: 1.05;
+    color: var(--cream);
+    opacity: 0; animation: fadeUp 1s 0.6s forwards;
+  }
+  .intro-title em { color: var(--rose); font-style: italic; }
+  .intro-line {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, var(--gold), var(--sage)); margin: 2rem auto;
+    opacity: 0; animation: expandLine 0.8s 1.1s forwards;
+  }
+  .intro-msg {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--muted); max-width: 420px;
+    opacity: 0; animation: fadeUp 1s 1.2s forwards;
+  }
+  .begin-btn {
+    margin-top: 2.5rem;
+    padding: 0.75rem 2.5rem;
+    border: 1px solid var(--rose);
+    background: transparent;
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    letter-spacing: 0.25em;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    opacity: 0; animation: fadeUp 1s 1.5s forwards;
+  }
+  .begin-btn:hover { background: var(--rose); color: var(--deep); }
+
+  /* ── Slideshow ── */
+  #slideshow {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 1.4s ease;
+    padding: 2rem;
+  }
+  .slide.active { opacity: 1; }
+
+  .slide-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 700px;
+    width: 100%;
+    gap: 1.5rem;
+  }
+
+  /* ── Photo frame ── */
+  .photo-frame {
+    position: relative;
+    width: min(340px, 80vw);
+    aspect-ratio: 4/5;
+    flex-shrink: 0;
+  }
+  .photo-frame::before {
+    content: '';
+    position: absolute;
+    inset: -8px -8px -8px -8px;
+    border: 1px solid rgba(196,116,110,0.3);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .photo-frame::after {
+    content: '';
+    position: absolute;
+    inset: -16px -16px -4px 4px;
+    border: 1px solid var(--sage-line);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .photo-placeholder {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #2e3028 0%, #251a17 60%, #1e1410 100%);
+    border: 1px dashed rgba(138,171,142,0.35);
+    cursor: pointer;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-placeholder:hover { border-color: var(--sage); }
+  .photo-placeholder input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .photo-placeholder img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    display: none;
+  }
+  .photo-placeholder img.loaded { display: block; }
+  .upload-hint {
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    pointer-events: none; z-index: 1;
+    transition: opacity 0.3s;
+  }
+  .upload-hint.hidden { opacity: 0; }
+  .upload-icon {
+    font-size: 2rem; opacity: 0.4;
+  }
+  .upload-text {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Caption ── */
+  .caption-area { text-align: center; }
+  .slide-number {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200; font-size: 0.65rem;
+    letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 0.6rem;
+  }
+  .caption {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    font-weight: 300; color: var(--cream);
+    line-height: 1.5; max-width: 500px;
+  }
+  .caption-sub {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200; font-size: 0.75rem;
+    letter-spacing: 0.1em; color: var(--muted);
+    margin-top: 0.4rem;
+  }
+
+  /* ── Navigation ── */
+  #nav {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 1.5rem;
+    z-index: 200;
+  }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1.2rem;
+    padding: 0.5rem; transition: color 0.3s;
+    font-family: 'Jost', sans-serif;
+    letter-spacing: 0.1em;
+  }
+  .nav-btn:hover { color: var(--sage); }
+  .dots { display: flex; gap: 0.5rem; align-items: center; }
+  .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--muted); transition: background 0.3s, transform 0.3s;
+    cursor: pointer; border: none;
+  }
+  .dot.active { background: var(--sage); transform: scale(1.4); }
+
+  /* ── Final slide ── */
+  #final-slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    opacity: 0; transition: opacity 1.4s;
+    pointer-events: none;
+  }
+  #final-slide.active { opacity: 1; pointer-events: all; }
+  .final-label {
+    font-family: 'Jost', sans-serif; font-weight: 200;
+    letter-spacing: 0.4em; font-size: 0.65rem;
+    text-transform: uppercase; color: var(--sage);
+    margin-bottom: 1.2rem;
+  }
+  .final-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 300; color: var(--cream);
+    line-height: 1.1;
+  }
+  .final-title em { color: var(--rose); font-style: italic; }
+  .hearts {
+    font-size: 1.2rem; letter-spacing: 0.5rem;
+    color: var(--rose); margin: 1.5rem 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .final-msg {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--muted); max-width: 400px; line-height: 1.7;
+  }
+  .restart-btn {
+    margin-top: 2rem;
+    padding: 0.6rem 2rem;
+    border: 1px solid rgba(196,116,110,0.4);
+    background: transparent; color: var(--muted);
+    font-family: 'Jost', sans-serif; font-weight: 200;
+    letter-spacing: 0.2em; font-size: 0.7rem;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .restart-btn:hover { border-color: var(--rose); color: var(--cream); }
+
+  /* ── Floating petals ── */
+  .petal {
+    position: fixed; pointer-events: none; z-index: 50;
+    font-size: 0.8rem; opacity: 0;
+    animation: fall linear infinite;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes expandLine {
+    from { opacity: 0; width: 0; }
+    to   { opacity: 1; width: 60px; }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.08); }
+  }
+  @keyframes fall {
+    0%   { opacity: 0; transform: translateY(-20px) rotate(0deg); }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+  }
+
+  /* ── Responsive tweak ── */
+  @media (min-width: 600px) {
+    .slide-inner { flex-direction: row; align-items: center; gap: 3rem; text-align: left; }
+    .caption-area { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <p class="intro-subtitle">A birthday gift made with love</p>
+  <h1 class="intro-title">For <em>you,</em><br>my heart</h1>
+  <div class="intro-line"></div>
+  <p class="intro-msg">A little journey through our most treasured moments together.</p>
+  <button class="begin-btn" onclick="startShow()">Begin ♡</button>
+</div>
+
+<!-- SLIDESHOW -->
+<div id="slideshow">
+
+  <!-- SLIDE 1 -->
+  <div class="slide" id="slide-0">
+    <div class="slide-inner">
+      <div class="photo-frame">
+        <div class="photo-placeholder" id="ph-0">
+          <input type="file" accept="image/*" onchange="loadPhoto(this, 0)">
+          <img id="img-0" alt="Memory 1">
+          <div class="upload-hint" id="hint-0">
+            <span class="upload-icon">🌸</span>
+            <span class="upload-text">Tap to add photo</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-area">
+        <p class="slide-number">Memory 01</p>
+        <p class="caption">"The moment I knew you were the one I'd choose, every single day."</p>
+        <p class="caption-sub">Add your own note here ♡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide" id="slide-1">
+    <div class="slide-inner">
+      <div class="photo-frame">
+        <div class="photo-placeholder" id="ph-1">
+          <input type="file" accept="image/*" onchange="loadPhoto(this, 1)">
+          <img id="img-1" alt="Memory 2">
+          <div class="upload-hint" id="hint-1">
+            <span class="upload-icon">🌸</span>
+            <span class="upload-text">Tap to add photo</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-area">
+        <p class="slide-number">Memory 02</p>
+        <p class="caption">"In all the world, there is no heart more open than yours."</p>
+        <p class="caption-sub">Add your own note here ♡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide" id="slide-2">
+    <div class="slide-inner">
+      <div class="photo-frame">
+        <div class="photo-placeholder" id="ph-2">
+          <input type="file" accept="image/*" onchange="loadPhoto(this, 2)">
+          <img id="img-2" alt="Memory 3">
+          <div class="upload-hint" id="hint-2">
+            <span class="upload-icon">🌸</span>
+            <span class="upload-text">Tap to add photo</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-area">
+        <p class="slide-number">Memory 03</p>
+        <p class="caption">"I look at you and think — I am the luckiest."</p>
+        <p class="caption-sub">Add your own note here ♡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide" id="slide-3">
+    <div class="slide-inner">
+      <div class="photo-frame">
+        <div class="photo-placeholder" id="ph-3">
+          <input type="file" accept="image/*" onchange="loadPhoto(this, 3)">
+          <img id="img-3" alt="Memory 4">
+          <div class="upload-hint" id="hint-3">
+            <span class="upload-icon">🌸</span>
+            <span class="upload-text">Tap to add photo</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-area">
+        <p class="slide-number">Memory 04</p>
+        <p class="caption">"Every adventure is better because you are beside me."</p>
+        <p class="caption-sub">Add your own note here ♡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide" id="slide-4">
+    <div class="slide-inner">
+      <div class="photo-frame">
+        <div class="photo-placeholder" id="ph-4">
+          <input type="file" accept="image/*" onchange="loadPhoto(this, 4)">
+          <img id="img-4" alt="Memory 5">
+          <div class="upload-hint" id="hint-4">
+            <span class="upload-icon">🌸</span>
+            <span class="upload-text">Tap to add photo</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption-area">
+        <p class="slide-number">Memory 05</p>
+        <p class="caption">"You are my favorite story — and I never want it to end."</p>
+        <p class="caption-sub">Add your own note here ♡</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div id="final-slide">
+    <p class="final-label">Happy Birthday</p>
+    <h2 class="final-title">You are so<br>deeply <em>loved.</em></h2>
+    <div class="hearts">♡ ♡ ♡</div>
+    <p class="final-msg">Thank you for every laugh, every quiet moment, every memory. Here's to another year of us.</p>
+    <button class="restart-btn" onclick="goToSlide(0)">↩ Revisit memories</button>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nav-btn" onclick="prevSlide()">←</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" onclick="nextSlide()">→</button>
+</div>
+
+<script>
+  const TOTAL = 5;
+  let current = 0;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goToSlide(i);
+    dotsEl.appendChild(d);
+  }
+
+  function startShow() {
+    document.getElementById('intro').classList.add('hidden');
+    document.getElementById('nav').style.display = 'flex';
+    goToSlide(0);
+    spawnPetals();
+  }
+
+  function goToSlide(n) {
+    // Hide all
+    for (let i = 0; i < TOTAL; i++) {
+      document.getElementById('slide-' + i).classList.remove('active');
+    }
+    document.getElementById('final-slide').classList.remove('active');
+
+    if (n >= TOTAL) {
+      document.getElementById('final-slide').classList.add('active');
+      document.getElementById('nav').style.display = 'none';
+      current = TOTAL;
+    } else {
+      current = Math.max(0, n);
+      document.getElementById('slide-' + current).classList.add('active');
+      // dots
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+      document.getElementById('nav').style.display = 'flex';
+    }
+  }
+
+  function nextSlide() { goToSlide(current + 1); }
+  function prevSlide() {
+    if (current === TOTAL) { goToSlide(TOTAL - 1); return; }
+    if (current > 0) goToSlide(current - 1);
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  // Photo upload
+  function loadPhoto(input, idx) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('img-' + idx);
+      img.src = e.target.result;
+      img.classList.add('loaded');
+      document.getElementById('hint-' + idx).classList.add('hidden');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  // Petals
+  function spawnPetals() {
+    const symbols = ['🌸', '✿', '❀', '♡', '🌿'];
+    setInterval(() => {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.top = '-30px';
+      p.style.animationDuration = (6 + Math.random() * 8) + 's';
+      p.style.animationDelay = (Math.random() * 2) + 's';
+      p.style.fontSize = (0.6 + Math.random() * 0.6) + 'rem';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 16000);
+    }, 1800);
+  }
+
+  // Hide nav initially
+  document.getElementById('nav').style.display = 'none';
+</script>
+</body>
+</html>
