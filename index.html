@@ -276,7 +276,7 @@ html,body{width:100%;min-height:100%;overflow-x:hidden;font-family:'DM Sans',san
 const questions = [
   {
     emoji: '🎂',
-    q: 'What did you never ask me to cook for your birthday?',
+    q: 'What dish I never cooked for your birthday?',
     opts: ['Shkmeruli', 'Khinkali', 'Meat pies', 'Sushi'],
     correct: 1,
     ok: '🎂 Exactly! You never asked for them — but maybe it\'s time to put in a request? 😄',
@@ -295,8 +295,8 @@ const questions = [
     q: 'What month did we first meet?',
     opts: ['January', 'February', 'March', 'April'],
     correct: 2,
-    ok: '💜 February! A winter meeting for a warm love story ☃️',
-    no: '💜 It was February! The month everything changed 🌸'
+    ok: '💜 March! A beginning of a beautiful story ☃️',
+    no: '💜 It was March! The month everything changed 🌸'
   },
   {
     emoji: '🎄',
@@ -311,8 +311,8 @@ const questions = [
     q: 'Which room do I usually bring your forgotten phone from?',
     opts: ['The bathroom', 'The living room', 'The kitchen', 'The bedroom'],
     correct: 2,
-    ok: '😄 The kitchen! Always there, never where you need it!',
-    no: '😄 The kitchen! It basically lives there at this point 😂'
+    ok: '😄 The kitchen! and tea should come as well!',
+    no: '😄 The kitchen! I always happen to find your phone there — maybe because I\'m often in the kitchen? 🍳'
   },
   {
     emoji: '🎬',
@@ -417,8 +417,8 @@ function showResults(){
     emoji='🌿'; title='Pretty good, love!';
     msg='You got most of them! A few surprises in there, but you clearly pay attention 🥰';
   } else if(pct>=0.43){
-    emoji='😄'; title='Not bad… but room to learn!';
-    msg='We might need to spend more quality time together so you can catch up 😉 Lucky for you, I\'m right here ♡';
+    emoji='😄'; title='Not bad!';
+    msg='We might need to spend more quality time together 😉 Lucky for you, I\'m right here ♡';
   } else {
     emoji='🙈'; title='Hmm';
     msg='Not quite, but that just means we have more stories left to make together — and I\'m very much looking forward to that 💜';
